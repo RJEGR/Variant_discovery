@@ -3,7 +3,10 @@ Ricardo Gomez-Reyes
 # Description
 The intention for this lab is to perform variant discovery using GATK for model and non model species. The GATK Best Practices provide a detailed, well-tested workflow for germline short variant discovery in DNA sequencing data and RNAseq short variant per-sample calling. By following this pipeline, you can identify high-quality SNPs and indels from sequencing data aligned to a reference genome.
 
+According to recent benchmarks, new methods show best performance in detect disc variant (Barbitoff,et al., 2022). Including deepvariant software (https://github.com/google/deepvariant/blob/r1.6.1/docs/deepvariant-rnaseq-case-study.md)
 
+
+Barbitoff,et al., 2022 https://doi.org/10.1186/s12864-022-08365-3
 # 
 Perplexity summarises how to perform variant discovery:
 
