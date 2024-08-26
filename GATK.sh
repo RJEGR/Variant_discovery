@@ -82,10 +82,10 @@ fi
 # Step 2, pre-process bam for gatk
 
 
-gatk AddOrReplaceReadGroups \
+gatk --java-options "-Xmx7g" AddOrReplaceReadGroups \
     --I S1_BWA_SAM_BAM_FILES/${bs}.bam \
     --O S1_BWA_SAM_BAM_FILES/${bs}.RG.bam \
-    RGID=${bs} RGSM=${bs} RGLB=${bs} RGPU=NOVOGEN RGPL=ILLUMINA
+    --RGID ${bs} --RGSM ${bs} --RGLB ${bs} --RGPU NOVOGEN --RGPL ILLUMINA
 
 mkdir -p S2_GATK_DIR
 
