@@ -4,9 +4,6 @@
 #SBATCH -N 1
 #SBATCH --mem=100GB
 #SBATCH --ntasks-per-node=20
-#SBATCH --propagate=STACK
-
-ulimit -s unlimited
 
 EXPORT=/LUSTRE/apps/bioinformatica/bwa/
 export PATH=$PATH:$EXPORT
@@ -81,54 +78,107 @@ fi
 
 # Step 2, pre-process bam for gatk
 
+# Is working now
+
+if [ ! -f "S1_BWA_SAM_BAM_FILES/${bs}.RG.bam" ]; then
 
 gatk --java-options "-Xmx7g" AddOrReplaceReadGroups \
     --I S1_BWA_SAM_BAM_FILES/${bs}.bam \
     --O S1_BWA_SAM_BAM_FILES/${bs}.RG.bam \
     --RGID ${bs} --RGSM ${bs} --RGLB ${bs} --RGPU NOVOGEN --RGPL ILLUMINA
 
+else
+    echo "file already exists. Omitting AddOrReplaceReadGroups"
+fi
+
 mkdir -p S2_GATK_DIR
 
-gatk SortSam \
-    --I S1_BWA_SAM_BAM_FILES/${bs}.RG.bam \
-    --O S2_GATK_DIR/${bs}.sorted.bam \
-    --VALIDATION_STRINGENCY LENIENT \
-    --SO coordinate \
-    --MAX_RECORDS_IN_RAM 3000000 \
-    --CREATE_INDEX true    
+
+if [ ! -f "S2_GATK_DIR/${bs}.sorted.bam" ]; then
+
+    gatk SortSam \
+        --I S1_BWA_SAM_BAM_FILES/${bs}.RG.bam \
+        --O S2_GATK_DIR/${bs}.sorted.bam \
+        --VALIDATION_STRINGENCY LENIENT \
+        --SO coordinate \
+        --MAX_RECORDS_IN_RAM 3000000 \
+        --CREATE_INDEX true    
+
+
+else
+    echo "file already exists. Omitting SortSam"
+fi
+
 
 call="samtools flagstat S2_GATK_DIR/${bs}.sorted.bam > S2_GATK_DIR/${bs}_flagstat.txt"
 
-echo $call;eval $call
 
-gatk MarkDuplicates \
- 	        --INPUT S2_GATK_DIR/${bs}.sorted.bam \
- 	        --OUTPUT S2_GATK_DIR/${bs}.sorted.dup.bam  \
- 	        --METRICS_FILE S2_GATK_DIR/${bs}.MarkDuplicates.metrics
+if [ ! -f "S2_GATK_DIR/${bs}_flagstat.txt" ]; then
+
+    echo $call
+    eval $call
+
+else
+    echo "file already exists. Omitting samtools flagstat"
+fi
+
+
+if [ ! -f "S2_GATK_DIR/${bs}.sorted.dup.bam" ]; then
+
+    gatk MarkDuplicates \
+ 	    --INPUT S2_GATK_DIR/${bs}.sorted.bam \
+ 	    --OUTPUT S2_GATK_DIR/${bs}.sorted.dup.bam  \
+ 	    --METRICS_FILE S2_GATK_DIR/${bs}.MarkDuplicates.metrics
+
+else
+    echo "file already exists. Omitting MarkDuplicates"
+fi
+
 
 # step 1  - Build the model
+
 WD=/LUSTRE/bioinformatica_data/genomica_funcional/rgomez/Human/hg38/ftp.broadinstitute.org/bundle/hg38/
 
-gatk BaseRecalibrator \
-    -I S2_GATK_DIR/${bs}.sorted.dup.bam \
-    -R $reference \
-    --known-sites ${WD}/dbsnp_146.hg38.vcf.gz \
-    -O S2_GATK_DIR/${bs}_recal_data.table
+if [ ! -f "S2_GATK_DIR/${bs}_recal_data.table" ]; then
+
+    gatk BaseRecalibrator \
+        -I S2_GATK_DIR/${bs}.sorted.dup.bam \
+        -R $reference \
+        --known-sites ${WD}/dbsnp_146.hg38.vcf.gz \
+        -O S2_GATK_DIR/${bs}_recal_data.table
+
+else
+    echo "file already exists. Omitting BaseRecalibrator"
+fi 
 
 # Step 2: Apply the model to adjust the base quality scores
 
-gatk ApplyBQSR \
-    -I S2_GATK_DIR/${bs}.sorted.dup.bam \
-    -R $reference \
-    --bqsr-recal-file S2_GATK_DIR/${bs}_recal_data.table \
-    -O S2_GATK_DIR/${bs}.sort.dup.bqsr.bam
+if [ ! -f "S2_GATK_DIR/${bs}.sort.dup.bqsr.bam" ]; then
+
+    gatk ApplyBQSR \
+        -I S2_GATK_DIR/${bs}.sorted.dup.bam \
+        -R $reference \
+        --bqsr-recal-file S2_GATK_DIR/${bs}_recal_data.table \
+        -O S2_GATK_DIR/${bs}.sort.dup.bqsr.bam
+
+else
+    echo "file already exists. Omitting ApplyBQSR"
+fi 
+
 
 # And collect metrics
 
-gatk CollectMultipleMetrics \
-    -R $reference \
-    -I S2_GATK_DIR/${bs}.sort.dup.bqsr.bam \
-    -O S2_GATK_DIR/${bs}.sort.dup.bqsr.CollectMultipleMetrics
+if [ ! -f "S2_GATK_DIR/${bs}.sort.dup.bqsr.CollectMultipleMetrics" ]; then
+
+    gatk CollectMultipleMetrics \
+        -R $reference \
+        -I S2_GATK_DIR/${bs}.sort.dup.bqsr.bam \
+        -O S2_GATK_DIR/${bs}.sort.dup.bqsr.CollectMultipleMetrics
+
+else
+    echo "file already exists. Omitting CollectMultipleMetrics"
+fi 
+
 
 echo "The sample group ${bs} has been pre-processed\n" 
 echo "BAM file S2_GATK_DIR/${bs}.sort.dup.bqsr.bam is ready for variant calling"
@@ -139,14 +189,27 @@ echo "BAM file S2_GATK_DIR/${bs}.sort.dup.bqsr.bam is ready for variant calling"
 # HaplotypeCaller is the focal tool within GATK4 to simultaneously call germline SNVs and small Indels using local de novo assembly of haplotype regions.
 mkdir -p S3_GATK_Haplotype_DIR
 
-gatk --java-options "-Xmx7g" HaplotypeCaller \
-    -I S2_GATK_DIR/${bs}.sort.dup.bqsr.bam \
-    -R $reference \
-    -ERC GVCF \
-    -O S3_GATK_Haplotype_DIR/${bs}.g.vcf.gz
+echo "Running HaplotypeCaller"
 
+if [ ! -f "S3_GATK_Haplotype_DIR/${bs}.g.vcf.gz" ]; then
+
+    gatk --java-options "-Xmx7g" HaplotypeCaller \
+        -I S2_GATK_DIR/${bs}.sort.dup.bqsr.bam \
+        -R $reference \
+        -ERC GVCF \
+        -O S3_GATK_Haplotype_DIR/${bs}.g.vcf.gz
+
+else
+    echo "file already exists. Omitting CollectMultipleMetrics"
+fi 
+
+echo "HaplotypeCaller was done for $bs group"
 
 done
+
+echo "gatk analyses for this directory were done"
+
+exit
 
 # One or more VCF files containing variants  This argument must be specified at least once. Require
 
