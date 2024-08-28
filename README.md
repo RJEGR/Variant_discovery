@@ -91,7 +91,7 @@ Finally, IA perplexity will help us to summarises how to perform variant discove
 - Variant Annotation: Annotate the filtered variants using tools like ANNOVAR or SnpEff to provide biological context, such as functional impacts and associations with known variants.
 
 # 1) Quality control
-Prior to perform the variant discovery analysis, lets to screen data by fastqc
+Prior to perform the variant discovery analysis, lets to screen data by fastqc, and preprocessin since it is hoghly recommended ([Pfeifer, 2017](https://doi.org/10.1038/hdy.2016.102))
 ```bash
 FASTQC=/LUSTRE/apps/bioinformatica/FastQC_v0.12.1/
 export PATH=$PATH:$FASTQC
