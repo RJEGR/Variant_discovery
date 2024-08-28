@@ -208,6 +208,11 @@ echo "HaplotypeCaller was done for $bs group"
 done
 
 echo "gatk analyses for this directory were done"
+echo "continue with filter and annotate variant step"
+
+WDM=/LUSTRE/apps/Anaconda/2023/miniconda3/bin/
+mkdir -p MULTIQC_VIZ_DIR
+$WDM/multiqc $PWD/S1_BWA_SAM_BAM_FILES/ $PWD/S2_GATK_DIR -o MULTIQC_VIZ_DIR
 
 exit
 
