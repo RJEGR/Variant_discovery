@@ -8,24 +8,14 @@ These genomic and transcriptomic disruptions often interact and contribute to th
 </div>
 
 
-1) Altered Gene Expression:
-- Overexpression of oncogenes (e.g., MYC, CCND1)
-- Downregulation of tumor suppressors (e.g., TP53, PTEN) 
+| Genomic disruption    | Common |
+| -------- | ------- |
+| Altered Gene Expression  | Overexpression of oncogenes (e.g., MYC, CCND1), and Downregulation of tumor suppressors (e.g., TP53, PTEN)     |
+| Altered splicing of genes  | Genes like CD44, BRCA1, and TP53.     |
+| Common Gene Mutations (SNPs)    | - TP53 (tumor suppressor gene), PIK3CA (oncogene in PI3K pathway), BRCA1 and BRCA2 (DNA repair genes), PTEN (tumor suppressor gene) and AKT1, GATA3, CDH1 (various roles in cell processes)  |
+| Copy Number Variations (Gene Insertion/Deletions) | Amplification of HER2/ERBB2 (defines HER2+ subtype), MYC, CCND1, and FGFR1, Deletion of RB1, PTEN, and CDKN2A |
+|  |  |
 
-2) Altered splicing of genes like CD44, BRCA1, and TP53. 
-- Genomic Disruptions:
-
-3) Common Gene Mutations (SNPs):
-- TP53 (tumor suppressor gene)
-- PIK3CA (oncogene in PI3K pathway)
-- BRCA1 and BRCA2 (DNA repair genes)
-- PTEN (tumor suppressor gene)
-- AKT1, GATA3, CDH1 (various roles in cell processes)
-
-4) Copy Number Variations (Gene Insertion/Deletions):
-- Amplification of HER2/ERBB2 (defines HER2+ subtype)
-- Amplification of MYC, CCND1, and FGFR1
-- Deletion of RB1, PTEN, and CDKN2A
 
 
 # Bioinformatic insights
@@ -119,15 +109,11 @@ HaplotypeCaller and Mutect2 are both tools from the Genome Analysis Toolkit (GAT
 
 For calling variants in breast cancer samples, the recommended strategy is to use both HaplotypeCaller and Mutect2 from the GATK toolkit, as they serve different purposes. By combining the outputs of HaplotypeCaller and Mutect2, you can obtain a comprehensive list of germline predisposition variants and somatic mutations specific to the breast tumor, enabling a more complete understanding of the genetic landscape of the cancer. For example, Shin et al., 2024 describes Variant calling for germline small variants utilized HaplotypeCaller and Strelka2, while somatic small variant detection employed Strelka2 and Mutect2 ([Shin et al., 2024]([text](https://doi.org/10.1159/000536087)))
 
-### HaplotypeCaller
-- Purpose: HaplotypeCaller is primarily used for calling germline variants. It is optimized for identifying single nucleotide variants (SNVs) and insertions/deletions (indels) in diploid organisms, assuming a diploid model for variant calling.
-- Methodology: It employs a haplotype-based approach, utilizing local assembly of haplotypes and pair-HMM (Hidden Markov Model) alignment to improve the accuracy of variant calls. HaplotypeCaller can generate GVCF (Genomic VCF) files, which are useful for joint genotyping across multiple samples.
-- Use Cases: It is suitable for whole-genome or exome sequencing data where the focus is on identifying common and rare variants across populations or within individuals.
-### Mutect2
-- Purpose: Mutect2 is specifically designed for calling somatic variants, primarily in cancer genomics. It focuses on identifying mutations that occur in tumor cells but are not present in normal cells.
-- Methodology: Mutect2 uses a similar local assembly and alignment approach as HaplotypeCaller but incorporates somatic-specific genotyping and filtering techniques. It can operate in a tumor-only mode, which allows for variant calling without a matched normal sample, although this is less supported than tumor-normal comparisons.
-- Use Cases: It is optimized for detecting low-frequency somatic mutations, which are common in cancer due to the heterogeneous nature of tumor cells. Mutect2's algorithms account for factors like subclonality and copy number variations, making it more suitable for cancer studies.
-
+|               | HaplotypeCaller | Mutect2 |
+| :---------------: | ------: | ----: |
+| Purpose        |   HaplotypeCaller is primarily used for calling germline variants. It is optimized for identifying single nucleotide variants (SNVs) and insertions/deletions (indels) in diploid organisms, assuming a diploid model for variant calling.   | Mutect2 is specifically designed for calling somatic variants, primarily in cancer genomics. It focuses on identifying mutations that occur in tumor cells but are not present in normal cells.|
+| Methodology           |   It employs a haplotype-based approach, utilizing local assembly of haplotypes and pair-HMM (Hidden Markov Model) alignment to improve the accuracy of variant calls. HaplotypeCaller can generate GVCF (Genomic VCF) files, which are useful for joint genotyping across multiple samples.ue   | Uses a similar local assembly and alignment approach as HaplotypeCaller but incorporates somatic-specific genotyping and filtering techniques. It can operate in a tumor-only mode, which allows for variant calling without a matched normal sample, although this is less supported than tumor-normal comparisons. |
+| Use Cases    |  It is suitable for whole-genome or exome sequencing data where the focus is on identifying common and rare variants across populations or within individuals.   | It is optimized for detecting low-frequency somatic mutations, which are common in cancer due to the heterogeneous nature of tumor cells. Mutect2's algorithms account for factors like subclonality and copy number variations, making it more suitable for cancer studies. |
 
 ```bash
 https://multiqc.info/modules/gatk/
