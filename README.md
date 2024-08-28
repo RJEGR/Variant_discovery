@@ -106,7 +106,11 @@ $WDM/multiqc $PWD/fastqc_raw -o $PWD/fastqc_raw
 ```
 
 # 2) Base Quality Score Recalibration (BQSR)
-...
+I wrote a code to easly perform well-tested workflow for variant calling discovery using GATK Best Practices, and matching the experience of the Melbourne Bioinformatics, University of Melbourne ([Mahmood K, 2024](https://www.melbournebioinformatics.org.au/tutorials/tutorials/variant_calling_gatk1/variant_calling_gatk1/#variant-calling-using-gatk4)).  
+
+```bash
+sbatch GATK.sh Homo_sapiens_assembly38.fasta
+```
 
 # 3) Call Variants
 ## HaplotypeCaller vs Mutect2
