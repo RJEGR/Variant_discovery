@@ -42,17 +42,20 @@ else
 fi
 
 # Stage 1 (S1)
+mkdir -p CHKPNT_DIR
 
 mkdir -p S1_BWA_SAM_BAM_FILES
 
-for i in $(ls *_R1_001.fastq.gz);
+PATTERN="_R1.fq.gz"
+
+for i in $(ls *${PATTERN});
 do
-bs="${i%_R1_001.fastq.gz}"
+bs="${i%$PATTERN}"
 
-if [ ! -f "S1_BWA_SAM_BAM_FILES/${bs}.bam" ]; then
+if [ ! -f "CHKPNT_DIR/${bs}_bwaMem.chkpt" ]; then
 
-left_file=${bs}_R1_001.fastq.gz
-right_file=${bs}_R2_001.fastq.gz
+left_file=${bs}_R1.fq.gz
+right_file=${bs}_R2.fq.gz
 
 # because errors in  –R $read_group, omit and use AddOrReplaceReadGroups
 
@@ -68,7 +71,15 @@ call="bwa mem -M -t $thread_count \
 
     # using picard version for sort
 
-echo $call;eval $call
+echo $call
+
+eval $call
+
+unlink $left_file
+
+unlink $right_file
+
+touch  CHKPNT_DIR/${bs}_bwaMem.chkpt
 
 else
     echo "Alignment for 'S1_BWA_SAM_BAM_FILES/${bs}.sorted.bam' already exists."
