@@ -26,7 +26,7 @@ infile="${f%_L001_R1_001.fastq.gz}"
 left_file=${infile}_L001_R1_001.fastq.gz
 right_file=${infile}_L001_R2_001.fastq.gz
 
-if [ ! -f "CHKPNT_DIR/${bs}.chkpt" ]; then
+if [ ! -f "CHKPNT_DIR/${bs}_fastp.chkpt" ]; then
 
     call="fastp --thread $NPROCS --detect_adapter_for_pe \
     --json MULTIQC_VIZ_DIR/${bs}_fastp.json \
@@ -43,10 +43,10 @@ if [ ! -f "CHKPNT_DIR/${bs}.chkpt" ]; then
     unlink $left_file
     unlink $right_file
 
-    touch  CHKPNT_DIR/${bs}.chkpt
+    touch  CHKPNT_DIR/${bs}_fastp.chkpt
 
 else
-    echo "'CHKPNT_DIR/${bs}.chkpt' already exists."
+    echo "'CHKPNT_DIR/${bs}_fastp.chkpt' already exists."
     echo "Continue with next sample."
 fi
 
@@ -55,7 +55,7 @@ done
 
 WDM=/LUSTRE/apps/Anaconda/2023/miniconda3/bin/
 
-$WDM/multiqc --module fastp MULTIQC_VIZ_DIR  -o MULTIQC_VIZ_DIR --config multiqc_info.conf
+$WDM/multiqc MULTIQC_VIZ_DIR/*_fastp.json  -o MULTIQC_VIZ_DIR --config multiqc_info.conf
 
 
 exit
