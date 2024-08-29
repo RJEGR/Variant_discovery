@@ -29,8 +29,8 @@ right_file=${infile}_L001_R2_001.fastq.gz
 if [ ! -f "CHKPNT_DIR/${bs}.chkpt" ]; then
 
     call="fastp --thread $NPROCS --detect_adapter_for_pe \
-    --json MULTIQC_VIZ_DIR/${bs}.json \
-    --html MULTIQC_VIZ_DIR/${bs}.html \
+    --json MULTIQC_VIZ_DIR/${bs}_fastp.json \
+    --html MULTIQC_VIZ_DIR/${bs}_fastp.html \
     -i $left_file -I $right_file \
     -o FASTP_OUT_DIR/${bs}_R1.fq.gz  -O FASTP_OUT_DIR/${bs}_R2.fq.gz"
 
@@ -55,7 +55,7 @@ done
 
 WDM=/LUSTRE/apps/Anaconda/2023/miniconda3/bin/
 
-$WDM/multiqc fastqc -o MULTIQC_VIZ_DIR --config multiqc_info.conf
+$WDM/multiqc --module fastp MULTIQC_VIZ_DIR  -o MULTIQC_VIZ_DIR --config multiqc_info.conf
 
 
 exit
