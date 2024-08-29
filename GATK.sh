@@ -183,7 +183,6 @@ fi
 echo "The sample group ${bs} has been pre-processed\n" 
 echo "BAM file S2_GATK_DIR/${bs}.sort.dup.bqsr.bam is ready for variant calling"
 
-# Here you can run multiqc in S2_GATK_DIR
 
 # Step 3: Apply HaplotypeCaller
 # HaplotypeCaller is the focal tool within GATK4 to simultaneously call germline SNVs and small Indels using local de novo assembly of haplotype regions.
