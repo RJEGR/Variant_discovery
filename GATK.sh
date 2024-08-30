@@ -93,7 +93,7 @@ fi
 
 if [ ! -f "S1_BWA_SAM_BAM_FILES/${bs}.RG.bam" ]; then
 
-gatk --java-options "-Xmx7g" AddOrReplaceReadGroups \
+gatk --java-options "-Xmx20g" AddOrReplaceReadGroups \
     --I S1_BWA_SAM_BAM_FILES/${bs}.bam \
     --O S1_BWA_SAM_BAM_FILES/${bs}.RG.bam \
     --RGID ${bs} --RGSM ${bs} --RGLB ${bs} --RGPU NOVOGEN --RGPL ILLUMINA
@@ -190,24 +190,47 @@ else
     echo "file already exists. Omitting CollectMultipleMetrics"
 fi 
 
+touch  CHKPNT_DIR/${bs}_ApplyBQSR.chkpt
 
 echo "The sample group ${bs} has been pre-processed\n" 
 echo "BAM file S2_GATK_DIR/${bs}.sort.dup.bqsr.bam is ready for variant calling"
+
+done
+
+# Alternative step:
+
+WDM=/LUSTRE/apps/Anaconda/2023/miniconda3/bin/
+mkdir -p MULTIQC_VIZ_DIR
+$WDM/multiqc $PWD/S1_BWA_SAM_BAM_FILES/ $PWD/S2_GATK_DIR -o MULTIQC_VIZ_DIR --config multiqc_info.conf
 
 
 # Step 3: Apply HaplotypeCaller
 # HaplotypeCaller is the focal tool within GATK4 to simultaneously call germline SNVs and small Indels using local de novo assembly of haplotype regions.
 mkdir -p S3_GATK_Haplotype_DIR
 
+echo "######################################################\n"
 echo "Running HaplotypeCaller"
+echo "######################################################\n"
 
-if [ ! -f "S3_GATK_Haplotype_DIR/${bs}.g.vcf.gz" ]; then
+for i in $(ls S2_GATK_DIR/*.sort.dup.bqsr.bam);
+do
+basename=${i##*/}
+bs="${basename%.sort.dup.bqsr.bam}"
 
-    gatk --java-options "-Xmx7g" HaplotypeCaller \
+if [ ! -f "CHKPNT_DIR/${bs}_HaplotypeCaller.chkpt" ]; then
+
+    call="gatk --java-options "-Xmx50g" HaplotypeCaller \
+        --native-pair-hmm-threads $thread_count \
         -I S2_GATK_DIR/${bs}.sort.dup.bqsr.bam \
         -R $reference \
         -ERC GVCF \
-        -O S3_GATK_Haplotype_DIR/${bs}.g.vcf.gz
+        -O S3_GATK_Haplotype_DIR/${bs}.g.vcf.gz"
+
+
+    echo $call
+    eval $call
+
+    touch  CHKPNT_DIR/${bs}_HaplotypeCaller.chkpt
 
 else
     echo "file already exists. Omitting CollectMultipleMetrics"
@@ -220,9 +243,6 @@ done
 echo "gatk analyses for this directory were done"
 echo "continue with filter and annotate variant step"
 
-WDM=/LUSTRE/apps/Anaconda/2023/miniconda3/bin/
-mkdir -p MULTIQC_VIZ_DIR
-$WDM/multiqc $PWD/S1_BWA_SAM_BAM_FILES/ $PWD/S2_GATK_DIR -o MULTIQC_VIZ_DIR
 
 exit
 
