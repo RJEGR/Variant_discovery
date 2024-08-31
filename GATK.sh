@@ -233,7 +233,7 @@ if [ ! -f "CHKPNT_DIR/${bs}_HaplotypeCaller.chkpt" ]; then
     touch  CHKPNT_DIR/${bs}_HaplotypeCaller.chkpt
 
 else
-    echo "file already exists. Omitting CollectMultipleMetrics"
+    echo "file already exists. Omitting HaplotypeCaller"
 fi 
 
 echo "HaplotypeCaller was done for $bs group"
