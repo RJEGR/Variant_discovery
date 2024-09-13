@@ -111,15 +111,36 @@ sbatch GATK.sh Homo_sapiens_assembly38.fasta
 # 3) Call Variants
 ## HaplotypeCaller vs Mutect2
 
-HaplotypeCaller and Mutect2 are both tools from the Genome Analysis Toolkit (GATK) used for variant calling, but they are designed for different types of variants and have distinct methodologies. In summary, the choice between HaplotypeCaller and Mutect2 should be guided by the nature of the samples and the type of variants being studied: use HaplotypeCaller for germline variants and Mutect2 for somatic variants in cancer research. 
+HaplotypeCaller and [Mutect2](https://gatk.broadinstitute.org/hc/en-us/articles/360037593851-Mutect2) are both tools from the Genome Analysis Toolkit (GATK) used for variant calling, but they are designed for different types of variants and have distinct methodologies. In summary, the choice between HaplotypeCaller and Mutect2 should be guided by the nature of the samples and the type of variants being studied: use HaplotypeCaller for germline variants and Mutect2 for somatic variants in cancer research. 
 
-For calling variants in breast cancer samples, the recommended strategy is to use both HaplotypeCaller and Mutect2 from the GATK toolkit, as they serve different purposes. By combining the outputs of HaplotypeCaller and Mutect2, you can obtain a comprehensive list of germline predisposition variants and somatic mutations specific to the breast tumor, enabling a more complete understanding of the genetic landscape of the cancer. For example, Shin et al., 2024 describes Variant calling for germline small variants utilized HaplotypeCaller and Strelka2, while somatic small variant detection employed Strelka2 and Mutect2 ([Shin et al., 2024]([text](https://doi.org/10.1159/000536087)))
+For calling variants in breast cancer samples, the recommended strategy is to use both HaplotypeCaller and Mutect2 from the GATK toolkit, as they serve different purposes. By combining the outputs of HaplotypeCaller and Mutect2, you can obtain a comprehensive list of germline predisposition variants and somatic mutations specific to the breast tumor, enabling a more complete understanding of the genetic landscape of the cancer. For example, Shin et al., 2024 describes Variant calling for germline small variants utilized HaplotypeCaller and Strelka2, while somatic small variant detection employed Strelka2 and Mutect2 ([Shin et al., 2024]([text](https://doi.org/10.1159/000536087))). 
+
+The documentation for HaplotypeCaller states that "the algorithms used to calculate variant likelihoods is not well suited to extreme allele frequencies (relative to ploidy) so its use is not recommended for somatic (cancer) variant discovery. For that purpose, use MuTect2 instead.
+
+Mutect2 Can Be Used With or Without a Matched Normal Sample. Mutect2 can be used to detect somatic variants in one or more tumor samples from a single individual, with or without a matched normal sample. When a matched normal is available, Mutect2 skips emitting variants that are clearly present in the germline based on the normal sample.
+
 
 |               | HaplotypeCaller | Mutect2 |
 | :---------------: | ------: | ----: |
 | Purpose        |   HaplotypeCaller is primarily used for calling germline variants. It is optimized for identifying single nucleotide variants (SNVs) and insertions/deletions (indels) in diploid organisms, assuming a diploid model for variant calling.   | Mutect2 is specifically designed for calling somatic variants, primarily in cancer genomics. It focuses on identifying mutations that occur in tumor cells but are not present in normal cells.|
 | Methodology           |   It employs a haplotype-based approach, utilizing local assembly of haplotypes and pair-HMM (Hidden Markov Model) alignment to improve the accuracy of variant calls. HaplotypeCaller can generate GVCF (Genomic VCF) files, which are useful for joint genotyping across multiple samples.ue   | Uses a similar local assembly and alignment approach as HaplotypeCaller but incorporates somatic-specific genotyping and filtering techniques. It can operate in a tumor-only mode, which allows for variant calling without a matched normal sample, although this is less supported than tumor-normal comparisons. |
 | Use Cases    |  It is suitable for whole-genome or exome sequencing data where the focus is on identifying common and rare variants across populations or within individuals.   | It is optimized for detecting low-frequency somatic mutations, which are common in cancer due to the heterogeneous nature of tumor cells. Mutect2's algorithms account for factors like subclonality and copy number variations, making it more suitable for cancer studies. |
+
+
+Mutect2 Tumor-only mode
+This mode runs on a single type of sample, e.g. the tumor or the normal. To create a PoN, call on each normal sample in this mode, then use CreateSomaticPanelOfNormals to generate the PoN.
+
+
+```bash
+
+  gatk Mutect2 \
+   -R reference.fa \
+   -I sample.bam \
+   -O single_sample.vcf.gz
+ 
+```
+
+
 
 ```bash
 https://multiqc.info/modules/gatk/
