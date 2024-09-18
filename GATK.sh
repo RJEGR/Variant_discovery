@@ -4,6 +4,7 @@
 #SBATCH -N 1
 #SBATCH --mem=100GB
 #SBATCH --ntasks-per-node=20
+#SBATCH -t 6-00:00:00
 
 EXPORT=/LUSTRE/apps/bioinformatica/bwa/
 export PATH=$PATH:$EXPORT
