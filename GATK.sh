@@ -259,3 +259,11 @@ gatk --java-options "-Xmx7g" CombineGVCFs \
 
 exit
 
+
+vcf_files=`ls S4_GATK_Mutect2_DIR/*.f.vcf.gz`
+vcf_files=`echo -V $vcf_files`
+
+call="gatk --java-options "-Xmx7g" CombineGVCFs \
+    -R $reference \
+    $vcf_files \
+    -O S4_GATK_Mutect2_DIR/CombineGVCF.f.vcf.gz"

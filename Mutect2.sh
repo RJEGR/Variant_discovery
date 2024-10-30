@@ -51,7 +51,7 @@ fi
 
 echo "Mutect2 and FilterMutectCalls was done for $bs group"
 
-done
+# done
 
 # exit
 
@@ -94,7 +94,7 @@ if [ ! -f "$dataSourcesFolder/funcotator_dataSources.v1.8.hg38.20230908s.tar.gz"
     call="gatk FuncotatorDataSourceDownloader --somatic --validate-integrity --extract-after-download --hg38"
     eval $call
 else
-    echo "FuncotatorDataSourceDownloader already was ran"
+    echo "FuncotatorDataSource already was downloaded"
 fi
 
 # Choose Variant type
@@ -144,23 +144,6 @@ else
     echo "Funcotator already was run for ${bs}.f.${variant_type}.functotated.vcf.gz"
 fi
 
+done
+
 exit
-
-#gatk SelectVariants -R ${ref} -V ${results}/raw_variants.vcf --select-type SNP -O ${results}/raw_snps.vcf
-#gatk SelectVariants -R ${ref} -V ${results}/raw_variants.vcf --select-type INDEL -O ${results}/raw_indels.vcf
-
-# annotate
-# https://github.com/kpatel427/YouTubeTutorials/blob/ac98e41ef30446b8afe40af247315d81389bfeaa/variant_filtering_annotation.sh#L39
-gatk Funcotator \
-	--variant ${results}/analysis-ready-snps-filteredGT.vcf \
-	--reference ${ref} \
-	--ref-version hg38 \
-	--data-sources-path /Users/kr/Desktop/demo/tools/functotator_prepackaged_sources/funcotator/hg38/funcotator_dataSources.v1.7.20200521g \
-	--output ${results}/analysis-ready-snps-filteredGT-functotated.vcf \
-	--output-file-format VCF
-
-    # Extract fields from a VCF file to a tab-delimited table
-
-gatk VariantsToTable \
-	-V ${results}/analysis-ready-snps-filteredGT-functotated.vcf -F AC -F AN -F DP -F AF -F FUNCOTATION \
-	-O ${results}/output_snps.table
